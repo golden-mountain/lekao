@@ -1,28 +1,25 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import Hanz from "./Hanz";
+import English from "./English";
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+export default function App() {
+  return (
+    <Router>
+      <div>
+        <h2>乐考.听写</h2>
+        <ul>
+          <li>
+            <Link to="/english">English</Link>
+          </li>
+          <li>
+            <Link to="/hanz">语文</Link>
+          </li>
+        </ul>
+
+        <Route path="/english" component={English} />
+        <Route path="/hanz" component={Hanz} />
       </div>
-    );
-  }
+    </Router>
+  );
 }
-
-export default App;
