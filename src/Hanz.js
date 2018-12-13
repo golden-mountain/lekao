@@ -5,24 +5,52 @@ import { fromHZ } from "./libraries/hanzi.js";
 // console.log(generateWords(unit1["require"]));
 
 const units = {
-  unit7: [
-    "允许",
-    "悲哀",
-    "诱惑",
-    "余地",
-    "道德",
-    "实施",
-    "骄傲",
-    "界栏",
-    "横穿",
-    "顺序",
-    "抢座",
-    "满不在乎",
-    "方便",
-    "规则",
-    "翻越",
-    "喂养",
-    "搁在"
+  // unit7: [
+  //   "允许",
+  //   "悲哀",
+  //   "诱惑",
+  //   "余地",
+  //   "道德",
+  //   "实施",
+  //   "骄傲",
+  //   "界栏",
+  //   "横穿",
+  //   "顺序",
+  //   "抢座",
+  //   "满不在乎",
+  //   "方便",
+  //   "规则",
+  //   "翻越",
+  //   "喂养",
+  //   "搁在"
+  // ],
+  unit9: [
+    "自豪",
+    "侵占",
+    "振奋人心",
+    "歌词",
+    "弹琴",
+    "催人奋进",
+    "尤其",
+    "豁然开朗",
+    "贝多芬",
+    "激动",
+    "卷起",
+    "乌云",
+    "仿佛",
+    "安详",
+    "奏乐",
+    "清脆",
+    "猫头鹰",
+    "异想天开",
+    "竟然",
+    "不折不扣",
+    "油然而生",
+    "万众一心",
+    "勇往直前",
+    "居安思危",
+    "倾注",
+    "鼓舞"
   ]
 };
 
@@ -37,7 +65,7 @@ class Hanz extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      words: units.unit7,
+      words: units.unit9,
       wordsStatus: {},
       hideWords: false
     };
@@ -103,10 +131,14 @@ class Hanz extends Component {
     };
   }
 
-  reset(word, k) {
+  reset(elementID, words) {
     // const document = document.getElementById("word-" + k);
     // console.log(document);
-    console.log(this.rootRef);
+    // console.log(this.rootRef);
+    return () => {
+      const dom = document.getElementById(elementID);
+      dom.innerText = words;
+    };
   }
 
   render() {
@@ -133,7 +165,7 @@ class Hanz extends Component {
                       contentEditable
                       onFocus={this.focus(v, w)}
                       onBlur={this.change(v, w)}
-                      id={"word-" + k}
+                      id={"word-" + i + "-" + k}
                       style={{
                         display: "inline-block",
                         fontSize: "10em",
@@ -149,7 +181,7 @@ class Hanz extends Component {
                     </div>
                     <div className="icons-list">
                       <audio ref={this.audioRef} src={this.audios.good} />
-                      <button onClick={this.reset(w, k)}>
+                      <button onClick={this.reset("word-" + i + "-" + k, w)}>
                         <Icon type="redo" />
                       </button>
                       <span style={{ marginLeft: 5 }}>

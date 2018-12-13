@@ -268,8 +268,10 @@ function generateWords(orgWords, level = 2) {
 class App extends Component {
   constructor(props) {
     super(props);
-    const words = Object.keys(units["unit1"]);
-    const chinese = Object.values(units["unit1"]);
+    // this.reset("unit1");
+    const unit = "unit1";
+    const words = Object.keys(units[unit]);
+    const chinese = Object.values(units[unit]);
     this.state = {
       words: generateWords(words),
       orgWords: words,
@@ -277,26 +279,31 @@ class App extends Component {
       answers: [],
       checks: [],
       views: [],
-      unit: "unit1",
+      unit,
       units: Object.keys(units)
     };
   }
-  refresh() {
+
+  reset(unit) {
+    unit = unit || this.state.unit;
+    // console.log(unit);
+    const words = Object.keys(units[unit]);
+    const chinese = Object.values(units[unit]);
+    // console.log(words);
     this.setState({
-      orgChinese: Object.values(units[this.state.unit]),
-      words: generateWords(Object.keys(units[this.state.unit])),
+      words: generateWords(words),
+      orgWords: words,
+      orgChinese: chinese,
       answers: [],
-      checks: []
+      checks: [],
+      views: [],
+      unit,
+      units: Object.keys(units)
     });
   }
 
-  setUnit(unit) {
-    this.setState({
-      unit,
-      orgChinese: Object.values(units[unit]),
-      answers: [],
-      checks: []
-    });
+  refresh() {
+    return () => this.reset(this.state.unit);
   }
 
   change(i, k) {
@@ -338,31 +345,31 @@ class App extends Component {
   changeUnit(e) {
     // console.log(e.currentTarget.value, "unit name");
     const unit = e.currentTarget.value;
-    const words = Object.keys(units[unit]);
-    const chinese = Object.values(units[unit]);
+    this.reset(unit);
+    // const words = Object.keys(units[unit]);
+    // const chinese = Object.values(units[unit]);
 
-    this.setState({
-      unit,
-      org: words,
-      words: generateWords(words),
-      orgWords: words,
-      orgChinese: chinese,
-      checks: [],
-      answers: []
-    });
+    // this.setState({
+    //   unit,
+    //   org: words,
+    //   words: generateWords(words),
+    //   orgWords: words,
+    //   orgChinese: chinese,
+    //   checks: [],
+    //   answers: []
+    // });
   }
 
   render() {
     const [blankWords] = this.state.words;
-
+    const rightAnswers = this.state.checks.filter(v => v);
     return (
       <div className="App">
         <header>四年级英语测试题</header>
         <div>
-          成绩:{" "}
-          {Math.floor(this.state.checks.length / blankWords.length * 100)}{" "}
-          (正确: {this.state.checks.length} 错误:
-          {blankWords.length - this.state.checks.length})
+          成绩: {Math.floor((rightAnswers.length / blankWords.length) * 100)}{" "}
+          (正确: {rightAnswers.length} 错误:
+          {blankWords.length - rightAnswers.length})
         </div>
         <select onChange={this.changeUnit.bind(this)}>
           {this.state.units.map((unitName, key) => {
@@ -400,16 +407,20 @@ class App extends Component {
                 </div>
                 <div className="answer">
                   [
-                  {this.state.checks[i]
-                    ? <span className="good">Good</span>
-                    : <span className="wrong">Wrong</span>}
+                  {this.state.checks[i] ? (
+                    <span className="good">Good</span>
+                  ) : (
+                    <span className="wrong">Wrong</span>
+                  )}
                   ]
                 </div>
                 <div className="answer">
                   <button onClick={this.setViews(i)}>?</button>
-                  {this.state.views[i]
-                    ? <span>{this.state.orgWords[i]}</span>
-                    : ""}
+                  {this.state.views[i] ? (
+                    <span>{this.state.orgWords[i]}</span>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </li>
             );

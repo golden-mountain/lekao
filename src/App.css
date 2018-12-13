@@ -45,11 +45,13 @@ body{
 
 .word {
   display:inline-block;
+  font-size: '3em'
 }
 
 .answer {
   display:inline-block;
   float:right;
+  font-size: '1.5em'
 }
 
 .tester {
