@@ -5,25 +5,25 @@ import { fromHZ } from "./libraries/hanzi.js";
 // console.log(generateWords(unit1["require"]));
 
 const units = {
-  // unit7: [
-  //   "允许",
-  //   "悲哀",
-  //   "诱惑",
-  //   "余地",
-  //   "道德",
-  //   "实施",
-  //   "骄傲",
-  //   "界栏",
-  //   "横穿",
-  //   "顺序",
-  //   "抢座",
-  //   "满不在乎",
-  //   "方便",
-  //   "规则",
-  //   "翻越",
-  //   "喂养",
-  //   "搁在"
-  // ],
+  unit7: [
+    "允许",
+    "悲哀",
+    "诱惑",
+    "余地",
+    "道德",
+    "实施",
+    "骄傲",
+    "界栏",
+    "横穿",
+    "顺序",
+    "抢座",
+    "满不在乎",
+    "方便",
+    "规则",
+    "翻越",
+    "喂养",
+    "搁在"
+  ],
   unit9: [
     "自豪",
     "侵占",
@@ -50,7 +50,57 @@ const units = {
     "勇往直前",
     "居安思危",
     "倾注",
-    "鼓舞"
+    "鼓舞",
+    "丝毫",
+    "豪言壮语",
+    "占领",
+    "站立",
+    "究竟",
+    "竞赛",
+    "骄傲",
+    "娇柔"
+  ],
+  unit10: [
+    "金币",
+    "懒惰",
+    "省吃俭用",
+    "挣钱",
+    "筋疲力尽",
+    "列车",
+    "挤歪",
+    "手疾眼快",
+    "战士",
+    "拒绝",
+    "众目睽睽",
+    "夸奖",
+    "国旗",
+    "满头大汗",
+    "熊熊大火",
+    "大喊大叫",
+    "喜气洋洋",
+    "人来人往",
+    "千恩万谢",
+    "秋高气爽",
+    "撕破",
+    "好心肠",
+    "捏着",
+    "欠债",
+    "慈和",
+    "风霜",
+    "接纳",
+    "当牛做马",
+    "辛勤",
+    "坚决",
+    "辩解",
+    "拾金不昧",
+    "散落",
+    "启动",
+    "遗憾",
+    "感叹",
+    "栉风沐雨",
+    "珍惜",
+    "体谅",
+    "浮现"
   ]
 };
 
@@ -65,9 +115,11 @@ class Hanz extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      units: Object.keys(units),
       words: units.unit9,
       wordsStatus: {},
-      hideWords: false
+      hideWords: false,
+      currentUnit: "unit9"
     };
     this.audioRef = React.createRef();
     this.rootRef = React.createRef();
@@ -141,12 +193,34 @@ class Hanz extends Component {
     };
   }
 
+  changeUnit(e) {
+    // console.log(e.currentTarget.value, "unit name");
+    const unit = e.currentTarget.value;
+    // this.reset(unit);
+    // const words = Object.keys(units[unit]);
+    // const chinese = Object.values(units[unit]);
+
+    this.setState({
+      words: units[unit],
+      wordsStatus: {}
+    });
+  }
+
   render() {
     return (
       <div className="App" ref={this.rootRef}>
         <button onClick={this.onTingXie.bind(this)}>
           {this.state.hideWords ? "复习模式" : "听写模式"}
         </button>
+        <select onChange={this.changeUnit.bind(this)}>
+          {this.state.units.map((unitName, key) => {
+            return (
+              <option value={unitName} key={key}>
+                {unitName}
+              </option>
+            );
+          })}
+        </select>
         <header>四年级语文汉字拼音</header>
 
         {this.state.words.map((v, i) => {
