@@ -1,108 +1,10 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Icon } from "antd";
+import { Icon, Checkbox } from "antd";
 import { fromHZ } from "./libraries/hanzi.js";
 // console.log(generateWords(unit1["require"]));
 
-const units = {
-  unit7: [
-    "允许",
-    "悲哀",
-    "诱惑",
-    "余地",
-    "道德",
-    "实施",
-    "骄傲",
-    "界栏",
-    "横穿",
-    "顺序",
-    "抢座",
-    "满不在乎",
-    "方便",
-    "规则",
-    "翻越",
-    "喂养",
-    "搁在"
-  ],
-  unit9: [
-    "自豪",
-    "侵占",
-    "振奋人心",
-    "歌词",
-    "弹琴",
-    "催人奋进",
-    "尤其",
-    "豁然开朗",
-    "贝多芬",
-    "激动",
-    "卷起",
-    "乌云",
-    "仿佛",
-    "安详",
-    "奏乐",
-    "清脆",
-    "猫头鹰",
-    "异想天开",
-    "竟然",
-    "不折不扣",
-    "油然而生",
-    "万众一心",
-    "勇往直前",
-    "居安思危",
-    "倾注",
-    "鼓舞",
-    "丝毫",
-    "豪言壮语",
-    "占领",
-    "站立",
-    "究竟",
-    "竞赛",
-    "骄傲",
-    "娇柔"
-  ],
-  unit10: [
-    "金币",
-    "懒惰",
-    "省吃俭用",
-    "挣钱",
-    "筋疲力尽",
-    "列车",
-    "挤歪",
-    "手疾眼快",
-    "战士",
-    "拒绝",
-    "众目睽睽",
-    "夸奖",
-    "国旗",
-    "满头大汗",
-    "熊熊大火",
-    "大喊大叫",
-    "喜气洋洋",
-    "人来人往",
-    "千恩万谢",
-    "秋高气爽",
-    "撕破",
-    "好心肠",
-    "捏着",
-    "欠债",
-    "慈和",
-    "风霜",
-    "接纳",
-    "当牛做马",
-    "辛勤",
-    "坚决",
-    "辩解",
-    "拾金不昧",
-    "散落",
-    "启动",
-    "遗憾",
-    "感叹",
-    "栉风沐雨",
-    "珍惜",
-    "体谅",
-    "浮现"
-  ]
-};
+import units from "./chinese";
 
 class Hanz extends Component {
   audios = {
@@ -121,6 +23,7 @@ class Hanz extends Component {
       hideWords: false,
       currentUnit: "unit9"
     };
+
     this.audioRef = React.createRef();
     this.rootRef = React.createRef();
   }
@@ -138,26 +41,54 @@ class Hanz extends Component {
     //   });
   }
 
+  setMyState(o) {
+    this.setState(o);
+    // localStorage.setItem("words_state", JSON.stringify(o));
+  }
+
   onTingXie() {
     let hideWords = this.state.hideWords;
-    this.setState({ hideWords: !hideWords, wordsStatus: {} });
+    this.setMyState({ hideWords: !hideWords, wordsStatus: {} });
+  }
+
+  _getUnknownWords(wordsStatus) {
+    let words = [];
+    // console.log(Object.values(wordsStatus));
+    for (var w in wordsStatus) {
+      if (!wordsStatus[w]["status"]) {
+        words.push(w);
+      }
+    }
+    return words;
+  }
+
+  onShowWords() {
+    let showAllWords = this.state.showAllWords;
+    let words = [];
+    let wordsStatus = this.state.wordsStatus;
+    if (!showAllWords) {
+      // console.log(Object.values(wordsStatus));
+      words = this._getUnknownWords(wordsStatus);
+    } else {
+      words = units[this.state.currentUnit];
+    }
+    this.setMyState({ showAllWords: !showAllWords, words });
   }
 
   change(words, word) {
     const wordsStatus = this.state.wordsStatus;
-    if (!wordsStatus[words]) wordsStatus[words] = {};
-    if (!wordsStatus[words][word])
-      wordsStatus[words][word] = { status: false, word };
+    // if (!wordsStatus[words]) wordsStatus[words] = {};
+    if (!wordsStatus[word]) wordsStatus[word] = { status: false, word };
     return e => {
       const w = e.currentTarget.innerText.trim();
       if (w) {
-        wordsStatus[words][word] = {
+        wordsStatus[word] = {
           status: e.currentTarget.innerText === word,
           word: w
         };
-        this.setState({ wordsStatus });
+        this.setMyState({ wordsStatus });
         const currentAudio = this.audioRef.current;
-        if (wordsStatus[words][word]["status"]) {
+        if (wordsStatus[word]["status"]) {
           currentAudio.src = this.audios.good;
         } else {
           currentAudio.src = this.audios.bad;
@@ -170,15 +101,14 @@ class Hanz extends Component {
 
   focus(words, word) {
     const wordsStatus = this.state.wordsStatus;
-    if (!wordsStatus[words]) wordsStatus[words] = {};
-    if (!wordsStatus[words][word])
-      wordsStatus[words][word] = { status: false, word: "" };
+    // if (!wordsStatus[words]) wordsStatus[words] = {};
+    if (!wordsStatus[word]) wordsStatus[word] = { status: false, word: "" };
     return e => {
       const w = e.currentTarget.innerText.trim();
       if (w) {
-        wordsStatus[words][word] = { status: false, word: "" };
+        wordsStatus[word] = { status: false, word: "" };
         e.currentTarget.innerText = "";
-        this.setState({ wordsStatus });
+        this.setMyState({ wordsStatus });
       }
     };
   }
@@ -193,6 +123,19 @@ class Hanz extends Component {
     };
   }
 
+  setCollect(words, word) {
+    let wordsStatus = this.state.wordsStatus;
+    let that = this;
+    return () => {
+      wordsStatus[word] = {
+        status: !wordsStatus[word]["status"],
+        word
+      };
+      let words = that._getUnknownWords(wordsStatus);
+      that.setMyState({ wordsStatus, words });
+    };
+  }
+
   changeUnit(e) {
     // console.log(e.currentTarget.value, "unit name");
     const unit = e.currentTarget.value;
@@ -200,7 +143,8 @@ class Hanz extends Component {
     // const words = Object.keys(units[unit]);
     // const chinese = Object.values(units[unit]);
 
-    this.setState({
+    this.setMyState({
+      currentUnit: unit,
       words: units[unit],
       wordsStatus: {}
     });
@@ -209,9 +153,6 @@ class Hanz extends Component {
   render() {
     return (
       <div className="App" ref={this.rootRef}>
-        <button onClick={this.onTingXie.bind(this)}>
-          {this.state.hideWords ? "复习模式" : "听写模式"}
-        </button>
         <select onChange={this.changeUnit.bind(this)}>
           {this.state.units.map((unitName, key) => {
             return (
@@ -221,6 +162,13 @@ class Hanz extends Component {
             );
           })}
         </select>
+
+        <button onClick={this.onShowWords.bind(this)}>
+          {this.state.showAllWords ? "显示所有字" : "只显示不会写的字"}
+        </button>
+        <button onClick={this.onTingXie.bind(this)}>
+          {this.state.hideWords ? "复习模式" : "听写模式"}
+        </button>
         <header>四年级语文汉字拼音</header>
 
         {this.state.words.map((v, i) => {
@@ -258,17 +206,27 @@ class Hanz extends Component {
                       <button onClick={this.reset("word-" + i + "-" + k, w)}>
                         <Icon type="redo" />
                       </button>
-                      <span style={{ marginLeft: 5 }}>
-                        {this.state.wordsStatus[v] &&
-                        this.state.wordsStatus[v][w] &&
-                        this.state.wordsStatus[v][w].status ? (
+
+                      {this.state.wordsStatus &&
+                      this.state.wordsStatus[w].status ? (
+                        <span style={{ marginLeft: 5 }}>
                           <strong style={{ color: "green" }}>
                             很棒，再接再厉
                           </strong>
-                        ) : (
+                          <button onClick={this.setCollect(v, w)}>
+                            <Icon type="close" />
+                            还不会写了
+                          </button>
+                        </span>
+                      ) : (
+                        <span style={{ marginLeft: 5 }}>
                           <strong style={{ color: "red" }}>加油哦</strong>
-                        )}
-                      </span>
+                          <button onClick={this.setCollect(v, w)}>
+                            <Icon type="check" />
+                            会写了
+                          </button>
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
